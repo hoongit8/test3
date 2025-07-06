@@ -120,17 +120,37 @@ export const classService = {
     console.log('📋 받은 데이터:', classData)
     
     try {
+      // 기본값 설정
+      const insertData = {
+        title: classData.title,
+        date: classData.date,
+        time: classData.time,
+        max_students: classData.max_students || 5,
+        description: classData.description || null
+      }
+      
+      console.log('📝 실제 삽입할 데이터:', insertData)
+      
       const { data, error } = await supabase
         .from('classes')
-        .insert([classData])
+        .insert([insertData])
         .select()
         .single()
       
       console.log('🔍 Supabase 응답:', { data, error })
       
       if (error) {
-        console.error('❌ Supabase 오류:', error)
-        throw error
+        console.error('❌ Supabase 오류 상세:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
+        throw new Error(`수업 생성 실패: ${error.message}`)
+      }
+      
+      if (!data) {
+        throw new Error('수업 생성 후 데이터가 반환되지 않았습니다.')
       }
       
       console.log('✅ Database 수업 생성 성공:', data)
