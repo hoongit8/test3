@@ -1,11 +1,25 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Supabase 설정
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+// 디버깅을 위한 로그 (프로덕션에서는 제거)
+console.log('🔗 Supabase 설정 확인:')
+console.log('📍 URL:', supabaseUrl || '❌ URL이 설정되지 않음')
+console.log('🔑 Key:', supabaseKey ? `${supabaseKey.substring(0, 20)}...` : '❌ Key가 설정되지 않음')
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('🚨 Supabase 환경 변수가 설정되지 않았습니다!')
+  console.error('필요한 환경 변수:')
+  console.error('- VITE_SUPABASE_URL')
+  console.error('- VITE_SUPABASE_ANON_KEY')
+}
 
 // Supabase 클라이언트 생성
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(
+  supabaseUrl || 'https://pnqoonmbjrxbjpkbwoxg.supabase.co',
+  supabaseKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBucW9vbm1ianJ4Ympwa2J3b3hnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE2OTIzMjksImV4cCI6MjA2NzI2ODMyOX0.KKj_RjR9JcBt4Bd1BBpto5RPIoMBxMRvslxKWQ6e1mE'
+)
 
 // 데이터베이스 타입 정의
 export interface Database {
