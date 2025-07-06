@@ -312,6 +312,23 @@ const checkSupabaseConnection = async () => {
 export function AttendanceProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(attendanceReducer, initialState)
   
+  // 초기 데이터 로딩
+  useEffect(() => {
+    const initializeApp = async () => {
+      console.log('🚀 앱 초기화 시작')
+      try {
+        // 데이터 로딩
+        await loadStudents()
+        await loadClasses()
+        console.log('✅ 초기 데이터 로딩 완료')
+      } catch (error) {
+        console.error('❌ 초기 데이터 로딩 실패:', error)
+      }
+    }
+    
+    initializeApp()
+  }, []) // 빈 배열로 한 번만 실행
+  
   // 학생 데이터 로드
   const loadStudents = async () => {
     try {
@@ -703,11 +720,7 @@ export function AttendanceProvider({ children }: { children: ReactNode }) {
     }
   }
   
-  // 컴포넌트 마운트 시 데이터 로드
-  useEffect(() => {
-    loadStudents()
-    loadClasses()
-  }, [])
+
   
   return (
     <AttendanceContext.Provider value={{ 

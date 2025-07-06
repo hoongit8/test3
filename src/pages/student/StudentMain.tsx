@@ -33,13 +33,20 @@ const StudentMain: React.FC = () => {
       navigate('/student')
     } else {
       console.log('✅ 학생 인증 확인됨:', currentStudent.name)
+      // localStorage에 로그인 상태가 있는데 state에 없으면 state 업데이트
+      if (!state.studentLoggedIn && localStorage.getItem('studentLoggedIn') === 'true') {
+        dispatch({ type: 'STUDENT_LOGIN', payload: currentStudent })
+      }
     }
-  }, [state.studentLoggedIn, state.currentStudent, navigate])
+  }, [state.studentLoggedIn, state.currentStudent, navigate, dispatch])
   
   // 수업에 예약된 학생 수 계산 함수
   const getBookedStudentsCount = (classItem: any) => {
     return classItem.class_bookings ? classItem.class_bookings.length : 0
   }
+  
+  // 현재 학생 정보 가져오기 (state 또는 localStorage에서)
+  const currentStudent = state.currentStudent || (localStorage.getItem('currentStudent') ? JSON.parse(localStorage.getItem('currentStudent')!) : null)
   
   // 현재 학생이 예약한 수업인지 확인 함수
   const isStudentBooked = (classItem: any) => {
@@ -121,9 +128,6 @@ const StudentMain: React.FC = () => {
     const date = new Date(dateStr)
     return `${date.getMonth() + 1}월 ${date.getDate()}일`
   }
-  
-  // 현재 학생 정보 가져오기 (state 또는 localStorage에서)
-  const currentStudent = state.currentStudent || (localStorage.getItem('currentStudent') ? JSON.parse(localStorage.getItem('currentStudent')!) : null)
   
   // 로그인하지 않은 상태면 렌더링하지 않음
   if (!currentStudent) {

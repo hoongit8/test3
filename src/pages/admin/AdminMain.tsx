@@ -30,8 +30,12 @@ const AdminMain: React.FC = () => {
       navigate('/admin')
     } else {
       console.log('✅ 관리자 인증 확인됨')
+      // localStorage에 로그인 상태가 있는데 state에 없으면 state 업데이트
+      if (!state.adminLoggedIn && localStorage.getItem('adminLoggedIn') === 'true') {
+        dispatch({ type: 'ADMIN_LOGIN' })
+      }
     }
-  }, [state.adminLoggedIn, navigate])
+  }, [state.adminLoggedIn, navigate, dispatch])
   
   // 수업 생성 폼 상태
   const [newClass, setNewClass] = useState({
