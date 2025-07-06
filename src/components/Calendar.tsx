@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface CalendarProps {
   selectedDate: string
@@ -85,15 +85,13 @@ const Calendar: React.FC<CalendarProps> = ({
   // 날짜 클릭 핸들러
   const handleDateClick = (date: Date) => {
     if (isCurrentMonth(date)) {
-      onDateSelect(formatDate(date))
-    }
-  }
-  
-  // 수업 생성 핸들러
-  const handleCreateClass = (date: Date, e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (isAdmin && onCreateClass && isCurrentMonth(date)) {
-      onCreateClass(formatDate(date))
+      const dateStr = formatDate(date)
+      onDateSelect(dateStr)
+      
+      // 관리자인 경우 수업 생성 모달도 함께 열기
+      if (isAdmin && onCreateClass) {
+        onCreateClass(dateStr)
+      }
     }
   }
   
@@ -141,9 +139,10 @@ const Calendar: React.FC<CalendarProps> = ({
               onClick={() => handleDateClick(date)}
               className={`
                 relative p-2 min-h-[60px] border-b border-r cursor-pointer
-                ${isCurrentMonthDate ? 'hover:bg-gray-50' : 'text-gray-300'}
+                ${isCurrentMonthDate ? (isAdmin ? 'hover:bg-green-50' : 'hover:bg-gray-50') : 'text-gray-300'}
                 ${isSelected(date) ? 'bg-primary-50' : ''}
               `}
+              title={isAdmin && isCurrentMonthDate ? '클릭하여 수업 생성' : undefined}
             >
               {/* 날짜 */}
               <div className={`
@@ -173,15 +172,7 @@ const Calendar: React.FC<CalendarProps> = ({
                 </div>
               )}
               
-              {/* 관리자 전용 수업 생성 버튼 */}
-              {isAdmin && isCurrentMonthDate && (
-                <button
-                  onClick={(e) => handleCreateClass(date, e)}
-                  className="absolute top-1 right-1 p-1 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors"
-                >
-                  <Plus size={12} />
-                </button>
-              )}
+
             </div>
           )
         })}
