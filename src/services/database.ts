@@ -116,14 +116,30 @@ export const classService = {
     max_students?: number
     description?: string
   }) {
-    const { data, error } = await supabase
-      .from('classes')
-      .insert([classData])
-      .select()
-      .single()
+    console.log('🗄️ Database classService.create 시작')
+    console.log('📋 받은 데이터:', classData)
     
-    if (error) throw error
-    return data
+    try {
+      const { data, error } = await supabase
+        .from('classes')
+        .insert([classData])
+        .select()
+        .single()
+      
+      console.log('🔍 Supabase 응답:', { data, error })
+      
+      if (error) {
+        console.error('❌ Supabase 오류:', error)
+        throw error
+      }
+      
+      console.log('✅ Database 수업 생성 성공:', data)
+      return data
+      
+    } catch (error) {
+      console.error('💥 Database 수업 생성 실패:', error)
+      throw error
+    }
   },
 
   // 수업 정보 수정

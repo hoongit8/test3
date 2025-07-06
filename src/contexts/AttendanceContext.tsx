@@ -291,15 +291,28 @@ export function AttendanceProvider({ children }: { children: ReactNode }) {
   
   // 수업 생성
   const createClass = async (classData: { title: string; date: string; time: string; max_students?: number; description?: string }) => {
+    console.log('🏗️ Context createClass 시작')
+    console.log('📋 받은 데이터:', classData)
+    
     try {
       dispatch({ type: 'SET_LOADING', payload: true })
+      console.log('⏳ 로딩 상태 설정')
+      
       const newClass = await classService.create(classData)
+      console.log('✅ classService.create 성공:', newClass)
+      
       dispatch({ type: 'ADD_CLASS', payload: newClass })
+      console.log('📝 Redux 상태 업데이트 완료')
+      
+      return newClass
+      
     } catch (error) {
+      console.error('❌ Context createClass 실패:', error)
       dispatch({ type: 'SET_ERROR', payload: '수업 생성에 실패했습니다.' })
-      console.error('수업 생성 실패:', error)
+      throw error
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false })
+      console.log('🏁 로딩 상태 해제')
     }
   }
   

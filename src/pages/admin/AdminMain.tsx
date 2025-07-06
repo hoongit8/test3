@@ -101,38 +101,62 @@ const AdminMain: React.FC = () => {
   
   // 수업 저장 (생성 또는 수정)
   const handleSaveClass = async () => {
+    console.log('🔧 수업 저장 시작')
+    console.log('📋 수업 데이터:', newClass)
+    console.log('📅 선택된 날짜:', state.selectedDate)
+    console.log('🎯 모달 타입:', state.modalType)
+    
     if (!newClass.title || !newClass.time) {
       alert('수업 제목과 시간을 입력해주세요.')
       return
     }
     
-    if (state.modalType === 'createClass') {
-      // 새 수업 생성
-      await createClass({
-        title: newClass.title,
-        date: state.selectedDate,
-        time: newClass.time,
-        max_students: newClass.maxStudents,
-        description: newClass.description
+    try {
+      if (state.modalType === 'createClass') {
+        console.log('✨ 새 수업 생성 시작')
+        // 새 수업 생성
+        const classData = {
+          title: newClass.title,
+          date: state.selectedDate,
+          time: newClass.time,
+          max_students: newClass.maxStudents,
+          description: newClass.description
+        }
+        console.log('📝 전송할 데이터:', classData)
+        
+        const result = await createClass(classData)
+        console.log('✅ 수업 생성 결과:', result)
+        
+      } else if (state.modalType === 'editClass' && state.selectedClass) {
+        console.log('✏️ 수업 수정 시작')
+        // 기존 수업 수정
+        const updateData = {
+          title: newClass.title,
+          time: newClass.time,
+          max_students: newClass.maxStudents,
+          description: newClass.description
+        }
+        console.log('📝 수정할 데이터:', updateData)
+        
+        const result = await updateClass(state.selectedClass.id, updateData)
+        console.log('✅ 수업 수정 결과:', result)
+      }
+      
+      // 폼 초기화 및 모달 닫기
+      setNewClass({
+        title: '',
+        time: '',
+        maxStudents: 5,
+        description: ''
       })
-    } else if (state.modalType === 'editClass' && state.selectedClass) {
-      // 기존 수업 수정
-      await updateClass(state.selectedClass.id, {
-        title: newClass.title,
-        time: newClass.time,
-        max_students: newClass.maxStudents,
-        description: newClass.description
-      })
+      dispatch({ type: 'CLOSE_MODAL' })
+      
+      console.log('🎉 수업 저장 완료')
+      
+    } catch (error) {
+      console.error('❌ 수업 저장 실패:', error)
+      alert('수업 저장에 실패했습니다. 다시 시도해주세요.')
     }
-    
-    // 폼 초기화 및 모달 닫기
-    setNewClass({
-      title: '',
-      time: '',
-      maxStudents: 5,
-      description: ''
-    })
-    dispatch({ type: 'CLOSE_MODAL' })
   }
   
   // 모달 닫기
