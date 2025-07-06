@@ -176,4 +176,4 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 **개발 완료일**: 2024년 1월  
 **개발자**: AI Assistant  
-**라이선스**: MIT 
+**라이선스**: MIT
