@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAttendance } from '../../contexts/AttendanceContext'
 import { Lock, User, Eye, EyeOff } from 'lucide-react'
+import { testSupabaseConnection } from '../../lib/supabase'
 
 const AdminLogin: React.FC = () => {
   const [phone, setPhone] = useState('')
@@ -9,28 +10,52 @@ const AdminLogin: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [supabaseStatus, setSupabaseStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking')
   
-  const { dispatch } = useAttendance()
+  const { dispatch, loginAdmin } = useAttendance()
   const navigate = useNavigate()
   
-  // 로그인 처리 - 더미 데이터로 처리
+  // 컴포넌트 마운트 시 Supabase 연결 상태 확인
+  useEffect(() => {
+    const checkConnection = async () => {
+      console.log('🔍 관리자 로그인 - Supabase 연결 상태 확인 중...')
+      const isConnected = await testSupabaseConnection()
+      setSupabaseStatus(isConnected ? 'connected' : 'disconnected')
+      
+      if (!isConnected) {
+        setErrorMessage('⚠️ 데이터베이스 연결에 문제가 있습니다. 새 Supabase 프로젝트를 생성해주세요.')
+      }
+    }
+    
+    checkConnection()
+  }, [])
+  
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Supabase 연결 문제가 있으면 로그인 시도 중단
+    if (supabaseStatus === 'disconnected') {
+      setErrorMessage('❌ 데이터베이스 연결 문제로 로그인할 수 없습니다.')
+      return
+    }
+
     setIsLoading(true)
     setErrorMessage('')
-    
-    // 더미 인증 로직 (실제 백엔드 없이 시뮬레이션)
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000)) // 로딩 시뮬레이션
+      console.log('🔐 관리자 로그인 시도:', { phone })
+      const success = await loginAdmin(phone, password)
       
-      // 테스트 계정 확인
-      if (phone === '01000000000' && password === '1234') {
+      if (success) {
+        console.log('✅ 관리자 로그인 성공')
         dispatch({ type: 'ADMIN_LOGIN' })
         navigate('/admin/main')
       } else {
-        setErrorMessage('로그인에 실패했습니다. 전화번호와 비밀번호를 확인해주세요.')
+        console.log('❌ 관리자 로그인 실패')
+        setErrorMessage('전화번호 또는 비밀번호가 올바르지 않습니다.')
       }
     } catch (error) {
+      console.error('💥 관리자 로그인 오류:', error)
       setErrorMessage('로그인 중 오류가 발생했습니다.')
     } finally {
       setIsLoading(false)
@@ -47,6 +72,29 @@ const AdminLogin: React.FC = () => {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">관리자 로그인</h1>
           <p className="text-gray-600">출석체크 관리자 시스템에 로그인하세요</p>
+        </div>
+        
+        {/* Supabase 연결 상태 표시 */}
+        <div className="mt-4 text-center">
+          {supabaseStatus === 'checking' && (
+            <div className="text-yellow-600 text-sm">
+              🔍 데이터베이스 연결 확인 중...
+            </div>
+          )}
+          {supabaseStatus === 'connected' && (
+            <div className="text-green-600 text-sm">
+              ✅ 데이터베이스 연결 정상
+            </div>
+          )}
+          {supabaseStatus === 'disconnected' && (
+            <div className="text-red-600 text-sm">
+              ❌ 데이터베이스 연결 실패
+              <br />
+              <span className="text-xs">
+                Supabase 프로젝트를 확인하거나 새로 생성해주세요
+              </span>
+            </div>
+          )}
         </div>
         
         {/* 로그인 폼 */}
@@ -112,8 +160,12 @@ const AdminLogin: React.FC = () => {
           {/* 로그인 버튼 */}
           <button
             type="submit"
-            disabled={isLoading}
-            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isLoading || supabaseStatus === 'disconnected'}
+            className={`w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed ${
+              isLoading || supabaseStatus === 'disconnected'
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-primary-600 hover:bg-primary-700'
+            }`}
           >
             {isLoading ? '로그인 중...' : '관리자 로그인'}
           </button>

@@ -24,8 +24,15 @@ const StudentMain: React.FC = () => {
   
   // 인증 확인 - 학생 로그인 상태가 아니면 로그인 페이지로 이동
   useEffect(() => {
-    if (!state.studentLoggedIn || !state.currentStudent) {
+    // localStorage와 state 모두 확인하여 더 안정적인 인증 체크
+    const isStudentLoggedIn = state.studentLoggedIn || localStorage.getItem('studentLoggedIn') === 'true'
+    const currentStudent = state.currentStudent || (localStorage.getItem('currentStudent') ? JSON.parse(localStorage.getItem('currentStudent')!) : null)
+    
+    if (!isStudentLoggedIn || !currentStudent) {
+      console.log('🚫 학생 인증 실패 - 로그인 페이지로 이동')
       navigate('/student')
+    } else {
+      console.log('✅ 학생 인증 확인됨:', currentStudent.name)
     }
   }, [state.studentLoggedIn, state.currentStudent, navigate])
   
@@ -36,9 +43,9 @@ const StudentMain: React.FC = () => {
   
   // 현재 학생이 예약한 수업인지 확인 함수
   const isStudentBooked = (classItem: any) => {
-    if (!state.currentStudent || !classItem.class_bookings) return false
+    if (!currentStudent || !classItem.class_bookings) return false
     return classItem.class_bookings.some((booking: any) => 
-      booking.student_id === state.currentStudent?.id
+      booking.student_id === currentStudent?.id
     )
   }
   
@@ -91,15 +98,15 @@ const StudentMain: React.FC = () => {
   
   // 수업 예약
   const handleBookClass = async (classId: string) => {
-    if (state.currentStudent) {
-      await bookClass(classId, state.currentStudent.id)
+    if (currentStudent) {
+      await bookClass(classId, currentStudent.id)
     }
   }
   
   // 수업 취소
   const handleCancelClass = async (classId: string) => {
-    if (state.currentStudent && window.confirm('정말로 이 수업을 취소하시겠습니까?')) {
-      await cancelBooking(classId, state.currentStudent.id)
+    if (currentStudent && window.confirm('정말로 이 수업을 취소하시겠습니까?')) {
+      await cancelBooking(classId, currentStudent.id)
     }
   }
   
@@ -115,8 +122,11 @@ const StudentMain: React.FC = () => {
     return `${date.getMonth() + 1}월 ${date.getDate()}일`
   }
   
+  // 현재 학생 정보 가져오기 (state 또는 localStorage에서)
+  const currentStudent = state.currentStudent || (localStorage.getItem('currentStudent') ? JSON.parse(localStorage.getItem('currentStudent')!) : null)
+  
   // 로그인하지 않은 상태면 렌더링하지 않음
-  if (!state.currentStudent) {
+  if (!currentStudent) {
     return null
   }
   
@@ -131,7 +141,7 @@ const StudentMain: React.FC = () => {
             </div>
             <div>
               <h1 className="text-lg font-semibold text-gray-900">
-                {state.currentStudent.name}님
+                {currentStudent.name}님
               </h1>
               <p className="text-sm text-gray-600">학생 대시보드</p>
             </div>

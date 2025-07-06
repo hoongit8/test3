@@ -22,8 +22,14 @@ const AdminMain: React.FC = () => {
   
   // 인증 확인 - 관리자 로그인 상태가 아니면 로그인 페이지로 이동
   useEffect(() => {
-    if (!state.adminLoggedIn) {
+    // localStorage와 state 모두 확인하여 더 안정적인 인증 체크
+    const isAdminLoggedIn = state.adminLoggedIn || localStorage.getItem('adminLoggedIn') === 'true'
+    
+    if (!isAdminLoggedIn) {
+      console.log('🚫 관리자 인증 실패 - 로그인 페이지로 이동')
       navigate('/admin')
+    } else {
+      console.log('✅ 관리자 인증 확인됨')
     }
   }, [state.adminLoggedIn, navigate])
   
@@ -38,6 +44,14 @@ const AdminMain: React.FC = () => {
   // 수업에 예약된 학생 수 계산 함수
   const getBookedStudentsCount = (classItem: any) => {
     return classItem.class_bookings ? classItem.class_bookings.length : 0
+  }
+  
+  // 수업에 신청한 학생들의 이름 목록 가져오기 함수
+  const getBookedStudentsNames = (classItem: any): string[] => {
+    if (!classItem.class_bookings) return []
+    return classItem.class_bookings.map((booking: any) => 
+      booking.students?.name || '알 수 없음'
+    )
   }
   
   // 현재 선택된 날짜의 수업 목록
@@ -265,6 +279,23 @@ const AdminMain: React.FC = () => {
                       </div>
                       {classItem.description && (
                         <p className="mt-2 text-sm text-gray-600">{classItem.description}</p>
+                      )}
+                      
+                      {/* 신청한 학생들 목록 */}
+                      {getBookedStudentsNames(classItem).length > 0 && (
+                        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                          <h4 className="text-sm font-medium text-gray-700 mb-2">신청한 학생들:</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {getBookedStudentsNames(classItem).map((studentName, index) => (
+                              <span 
+                                key={index}
+                                className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full"
+                              >
+                                {studentName}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                       )}
                     </div>
                     <div className="flex items-center space-x-2 ml-4">
