@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAttendance } from '../../contexts/AttendanceContext'
-import { User, Eye, EyeOff, UserCheck } from 'lucide-react'
+import { User, Eye, EyeOff, UserCheck, RefreshCw } from 'lucide-react'
 
 const StudentLogin: React.FC = () => {
   const [phone, setPhone] = useState('')
@@ -10,32 +10,40 @@ const StudentLogin: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   
-  const { state, dispatch } = useAttendance()
+  const { state, loginStudent, initializeDatabase } = useAttendance()
   const navigate = useNavigate()
   
-  // 로그인 처리 - 더미 데이터로 처리
+  // 로그인 처리 - Supabase 데이터베이스 연동
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setErrorMessage('')
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000)) // 로딩 시뮬레이션
+      const success = await loginStudent(phone, password)
       
-      // 등록된 학생 중에서 전화번호로 찾기
-      const foundStudent = state.students.find(student => student.phone === phone)
-      
-      if (foundStudent && password === '1234') {
+      if (success) {
         // 학생 로그인 성공
-        dispatch({ type: 'STUDENT_LOGIN', payload: foundStudent })
         navigate('/student/main')
       } else {
-        setErrorMessage('로그인에 실패했습니다. 전화번호와 비밀번호를 확인해주세요.')
+        // 에러 메시지는 Context에서 설정됨
+        setErrorMessage(state.error || '로그인에 실패했습니다.')
       }
     } catch (error) {
       setErrorMessage('로그인 중 오류가 발생했습니다.')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // 데이터베이스 초기화 처리
+  const handleInitializeDatabase = async () => {
+    try {
+      await initializeDatabase()
+      setErrorMessage('')
+      alert('데이터베이스가 초기화되었습니다. 다시 로그인해주세요.')
+    } catch (error) {
+      setErrorMessage('데이터베이스 초기화에 실패했습니다.')
     }
   }
   
@@ -105,21 +113,36 @@ const StudentLogin: React.FC = () => {
           </div>
           
           {/* 에러 메시지 */}
-          {errorMessage && (
+          {(errorMessage || state.error) && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-600">{errorMessage}</p>
+              <p className="text-sm text-red-600">{errorMessage || state.error}</p>
             </div>
           )}
           
           {/* 로그인 버튼 */}
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || state.loading}
             className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? '로그인 중...' : '학생 로그인'}
+            {isLoading || state.loading ? '로그인 중...' : '학생 로그인'}
           </button>
         </form>
+        
+        {/* 데이터베이스 초기화 버튼 */}
+        <div className="mt-4">
+          <button
+            onClick={handleInitializeDatabase}
+            disabled={state.loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            {state.loading ? '초기화 중...' : '데이터베이스 초기화'}
+          </button>
+          <p className="text-xs text-gray-500 mt-1 text-center">
+            로그인이 안 되면 클릭하세요
+          </p>
+        </div>
         
         {/* 테스트 계정 안내 */}
         <div className="mt-8 p-4 bg-green-50 rounded-lg">
