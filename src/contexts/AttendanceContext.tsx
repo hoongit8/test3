@@ -81,12 +81,18 @@ type AttendanceAction =
 
 // 초기 상태 - localStorage에서 로그인 상태 복원
 const getInitialState = (): AttendanceState => {
+  console.log('🚀 AttendanceContext 초기 상태 설정 시작')
+  
   // localStorage에서 로그인 상태 확인
   const adminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true'
   const studentLoggedIn = localStorage.getItem('studentLoggedIn') === 'true'
   const currentStudentData = localStorage.getItem('currentStudent')
   
-  return {
+  console.log('💾 초기 상태 - adminLoggedIn:', adminLoggedIn)
+  console.log('💾 초기 상태 - studentLoggedIn:', studentLoggedIn)
+  console.log('💾 초기 상태 - currentStudentData:', currentStudentData)
+  
+  const initialState = {
     adminLoggedIn,
     studentLoggedIn,
     currentStudent: currentStudentData ? JSON.parse(currentStudentData) : null,
@@ -100,6 +106,9 @@ const getInitialState = (): AttendanceState => {
     loading: false,
     error: null
   }
+  
+  console.log('✅ 초기 상태 설정 완료:', initialState)
+  return initialState
 }
 
 const initialState: AttendanceState = getInitialState()

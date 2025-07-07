@@ -24,17 +24,27 @@ const StudentMain: React.FC = () => {
   
   // 인증 확인 - 학생 로그인 상태가 아니면 로그인 페이지로 이동
   useEffect(() => {
+    console.log('🔍 학생 인증 상태 확인 시작')
+    console.log('📊 state.studentLoggedIn:', state.studentLoggedIn)
+    console.log('📊 state.currentStudent:', state.currentStudent)
+    console.log('💾 localStorage studentLoggedIn:', localStorage.getItem('studentLoggedIn'))
+    console.log('💾 localStorage currentStudent:', localStorage.getItem('currentStudent'))
+    
     // localStorage와 state 모두 확인하여 더 안정적인 인증 체크
     const isStudentLoggedIn = state.studentLoggedIn || localStorage.getItem('studentLoggedIn') === 'true'
-    const currentStudent = state.currentStudent || (localStorage.getItem('currentStudent') ? JSON.parse(localStorage.getItem('currentStudent')!) : null)
+    const storedStudentData = localStorage.getItem('currentStudent')
+    const currentStudent = state.currentStudent || (storedStudentData ? JSON.parse(storedStudentData) : null)
     
     if (!isStudentLoggedIn || !currentStudent) {
       console.log('🚫 학생 인증 실패 - 로그인 페이지로 이동')
+      console.log('❌ isStudentLoggedIn:', isStudentLoggedIn)
+      console.log('❌ currentStudent:', currentStudent)
       navigate('/student')
     } else {
       console.log('✅ 학생 인증 확인됨:', currentStudent.name)
       // localStorage에 로그인 상태가 있는데 state에 없으면 state 업데이트
-      if (!state.studentLoggedIn && localStorage.getItem('studentLoggedIn') === 'true') {
+      if (!state.studentLoggedIn && localStorage.getItem('studentLoggedIn') === 'true' && currentStudent) {
+        console.log('🔄 localStorage에서 로그인 상태 복원 중...')
         dispatch({ type: 'STUDENT_LOGIN', payload: currentStudent })
       }
     }

@@ -22,16 +22,22 @@ const AdminMain: React.FC = () => {
   
   // 인증 확인 - 관리자 로그인 상태가 아니면 로그인 페이지로 이동
   useEffect(() => {
+    console.log('🔍 관리자 인증 상태 확인 시작')
+    console.log('📊 state.adminLoggedIn:', state.adminLoggedIn)
+    console.log('💾 localStorage adminLoggedIn:', localStorage.getItem('adminLoggedIn'))
+    
     // localStorage와 state 모두 확인하여 더 안정적인 인증 체크
     const isAdminLoggedIn = state.adminLoggedIn || localStorage.getItem('adminLoggedIn') === 'true'
     
     if (!isAdminLoggedIn) {
       console.log('🚫 관리자 인증 실패 - 로그인 페이지로 이동')
+      console.log('❌ isAdminLoggedIn:', isAdminLoggedIn)
       navigate('/admin')
     } else {
       console.log('✅ 관리자 인증 확인됨')
       // localStorage에 로그인 상태가 있는데 state에 없으면 state 업데이트
       if (!state.adminLoggedIn && localStorage.getItem('adminLoggedIn') === 'true') {
+        console.log('🔄 localStorage에서 관리자 로그인 상태 복원 중...')
         dispatch({ type: 'ADMIN_LOGIN' })
       }
     }
