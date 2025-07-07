@@ -22,7 +22,7 @@ const AdminMain: React.FC = () => {
   
   // 인증 확인 - 관리자 로그인 상태가 아니면 로그인 페이지로 이동
   useEffect(() => {
-    console.log('🔍 관리자 인증 상태 확인 시작')
+    console.log('🔍 AdminMain - 관리자 인증 상태 확인 시작')
     console.log('📊 state.adminLoggedIn:', state.adminLoggedIn)
     
     // localStorage에서 관리자 사용자 정보 확인

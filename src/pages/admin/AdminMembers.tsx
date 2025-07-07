@@ -33,10 +33,27 @@ const AdminMembers: React.FC = () => {
   
   // 인증 확인
   useEffect(() => {
-    if (!state.adminLoggedIn) {
+    console.log('🔍 AdminMembers - 관리자 인증 상태 확인 시작')
+    console.log('📊 state.adminLoggedIn:', state.adminLoggedIn)
+    
+    // localStorage에서 관리자 사용자 정보 확인
+    const adminUser = JSON.parse(localStorage.getItem('adminUser') || 'null')
+    console.log('💾 localStorage adminUser:', adminUser)
+    
+    const isAdminLoggedIn = state.adminLoggedIn || !!adminUser
+    
+    if (!isAdminLoggedIn) {
+      console.log('🚫 관리자 인증 실패 - 로그인 페이지로 이동')
       navigate('/admin')
+    } else {
+      console.log('✅ AdminMembers - 관리자 인증 확인됨')
+      // localStorage에 로그인 상태가 있는데 state에 없으면 state 업데이트
+      if (!state.adminLoggedIn && adminUser) {
+        console.log('🔄 localStorage에서 관리자 로그인 상태 복원 중...')
+        dispatch({ type: 'ADMIN_LOGIN' })
+      }
     }
-  }, [state.adminLoggedIn, navigate])
+  }, [state.adminLoggedIn, navigate, dispatch])
   
   // 학생 검색 필터링
   const filteredStudents = state.students.filter(student =>

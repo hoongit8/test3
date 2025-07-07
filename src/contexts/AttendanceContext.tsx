@@ -322,20 +322,30 @@ export function AttendanceProvider({ children }: { children: ReactNode }) {
   
   // 앱이 시작될 때 localStorage에서 로그인 상태 복원
   useEffect(() => {
-    console.log('🚀 앱 초기화 및 로그인 상태 복원 시작')
+    console.log('🚀 AttendanceProvider - 로그인 상태 복원 시작')
     
-    // 관리자 로그인 상태 복원
-    const adminUser = JSON.parse(localStorage.getItem('adminUser') || 'null')
-    if (adminUser) {
-      console.log('✅ 관리자 로그인 상태 복원:', adminUser)
-      dispatch({ type: 'ADMIN_LOGIN' })
-    }
-    
-    // 학생 로그인 상태 복원
-    const studentUser = JSON.parse(localStorage.getItem('studentUser') || 'null')
-    if (studentUser) {
-      console.log('✅ 학생 로그인 상태 복원:', studentUser.name)
-      dispatch({ type: 'STUDENT_LOGIN', payload: studentUser })
+    try {
+      // 관리자 로그인 상태 복원
+      const adminUser = JSON.parse(localStorage.getItem('adminUser') || 'null')
+      if (adminUser && !state.adminLoggedIn) {
+        console.log('✅ 관리자 로그인 상태 복원:', adminUser)
+        dispatch({ type: 'ADMIN_LOGIN' })
+      }
+      
+      // 학생 로그인 상태 복원
+      const studentUser = JSON.parse(localStorage.getItem('studentUser') || 'null')
+      if (studentUser && !state.studentLoggedIn) {
+        console.log('✅ 학생 로그인 상태 복원:', studentUser.name)
+        dispatch({ type: 'STUDENT_LOGIN', payload: studentUser })
+      }
+      
+      console.log('🔍 복원 후 상태 확인:')
+      console.log('- adminLoggedIn:', !!adminUser)
+      console.log('- studentLoggedIn:', !!studentUser)
+      console.log('- currentStudent:', studentUser)
+      
+    } catch (error) {
+      console.error('❌ 로그인 상태 복원 중 오류:', error)
     }
     
     // 초기 데이터 로딩

@@ -24,7 +24,7 @@ const StudentMain: React.FC = () => {
   
   // 인증 확인 - 학생 로그인 상태가 아니면 로그인 페이지로 이동
   useEffect(() => {
-    console.log('🔍 학생 인증 상태 확인 시작')
+    console.log('🔍 StudentMain - 학생 인증 상태 확인 시작')
     console.log('📊 state.studentLoggedIn:', state.studentLoggedIn)
     console.log('📊 state.currentStudent:', state.currentStudent)
     
@@ -43,7 +43,7 @@ const StudentMain: React.FC = () => {
     } else {
       console.log('✅ 학생 인증 확인됨:', currentStudent.name)
       // localStorage에 로그인 상태가 있는데 state에 없으면 state 업데이트
-      if (!state.studentLoggedIn && studentUser) {
+      if ((!state.studentLoggedIn || !state.currentStudent) && studentUser) {
         console.log('🔄 localStorage에서 학생 로그인 상태 복원 중...')
         dispatch({ type: 'STUDENT_LOGIN', payload: studentUser })
       }
