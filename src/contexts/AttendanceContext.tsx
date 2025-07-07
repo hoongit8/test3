@@ -83,19 +83,17 @@ type AttendanceAction =
 const getInitialState = (): AttendanceState => {
   console.log('🚀 AttendanceContext 초기 상태 설정 시작')
   
-  // localStorage에서 로그인 상태 확인
-  const adminLoggedIn = localStorage.getItem('adminLoggedIn') === 'true'
-  const studentLoggedIn = localStorage.getItem('studentLoggedIn') === 'true'
-  const currentStudentData = localStorage.getItem('currentStudent')
+  // localStorage에서 로그인 상태 확인 (새로운 방식)
+  const adminUser = JSON.parse(localStorage.getItem('adminUser') || 'null')
+  const studentUser = JSON.parse(localStorage.getItem('studentUser') || 'null')
   
-  console.log('💾 초기 상태 - adminLoggedIn:', adminLoggedIn)
-  console.log('💾 초기 상태 - studentLoggedIn:', studentLoggedIn)
-  console.log('💾 초기 상태 - currentStudentData:', currentStudentData)
+  console.log('💾 초기 상태 - adminUser:', adminUser)
+  console.log('💾 초기 상태 - studentUser:', studentUser)
   
   const initialState = {
-    adminLoggedIn,
-    studentLoggedIn,
-    currentStudent: currentStudentData ? JSON.parse(currentStudentData) : null,
+    adminLoggedIn: !!adminUser,
+    studentLoggedIn: !!studentUser,
+    currentStudent: studentUser,
     students: [],
     classes: [],
     selectedDate: new Date().toISOString().split('T')[0],
@@ -123,16 +121,18 @@ function attendanceReducer(state: AttendanceState, action: AttendanceAction): At
       return { ...state, error: action.payload, loading: false }
     
     case 'ADMIN_LOGIN':
-      localStorage.setItem('adminLoggedIn', 'true')
+      // 관리자 로그인 성공시 localStorage에 저장
+      localStorage.setItem('adminUser', JSON.stringify({ loggedIn: true, loginTime: new Date().toISOString() }))
       return { ...state, adminLoggedIn: true }
     
     case 'ADMIN_LOGOUT':
-      localStorage.removeItem('adminLoggedIn')
+      // 관리자 로그아웃시 localStorage에서 제거
+      localStorage.removeItem('adminUser')
       return { ...state, adminLoggedIn: false }
     
     case 'STUDENT_LOGIN':
-      localStorage.setItem('studentLoggedIn', 'true')
-      localStorage.setItem('currentStudent', JSON.stringify(action.payload))
+      // 학생 로그인 성공시 사용자 데이터를 localStorage에 저장
+      localStorage.setItem('studentUser', JSON.stringify(action.payload))
       return { 
         ...state, 
         studentLoggedIn: true, 
@@ -140,8 +140,8 @@ function attendanceReducer(state: AttendanceState, action: AttendanceAction): At
       }
     
     case 'STUDENT_LOGOUT':
-      localStorage.removeItem('studentLoggedIn')
-      localStorage.removeItem('currentStudent')
+      // 학생 로그아웃시 localStorage에서 제거
+      localStorage.removeItem('studentUser')
       return { 
         ...state, 
         studentLoggedIn: false, 
@@ -321,12 +321,27 @@ const checkSupabaseConnection = async () => {
 export function AttendanceProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(attendanceReducer, initialState)
   
-  // 초기 데이터 로딩
+  // 앱이 시작될 때 localStorage에서 로그인 상태 복원
   useEffect(() => {
-    const initializeApp = async () => {
-      console.log('🚀 앱 초기화 시작')
+    console.log('🚀 앱 초기화 및 로그인 상태 복원 시작')
+    
+    // 관리자 로그인 상태 복원
+    const adminUser = JSON.parse(localStorage.getItem('adminUser') || 'null')
+    if (adminUser) {
+      console.log('✅ 관리자 로그인 상태 복원:', adminUser)
+      dispatch({ type: 'ADMIN_LOGIN' })
+    }
+    
+    // 학생 로그인 상태 복원
+    const studentUser = JSON.parse(localStorage.getItem('studentUser') || 'null')
+    if (studentUser) {
+      console.log('✅ 학생 로그인 상태 복원:', studentUser.name)
+      dispatch({ type: 'STUDENT_LOGIN', payload: studentUser })
+    }
+    
+    // 초기 데이터 로딩
+    const initializeData = async () => {
       try {
-        // 데이터 로딩
         await loadStudents()
         await loadClasses()
         console.log('✅ 초기 데이터 로딩 완료')
@@ -335,7 +350,7 @@ export function AttendanceProvider({ children }: { children: ReactNode }) {
       }
     }
     
-    initializeApp()
+    initializeData()
   }, []) // 빈 배열로 한 번만 실행
   
   // 학생 데이터 로드

@@ -27,13 +27,13 @@ const StudentMain: React.FC = () => {
     console.log('🔍 학생 인증 상태 확인 시작')
     console.log('📊 state.studentLoggedIn:', state.studentLoggedIn)
     console.log('📊 state.currentStudent:', state.currentStudent)
-    console.log('💾 localStorage studentLoggedIn:', localStorage.getItem('studentLoggedIn'))
-    console.log('💾 localStorage currentStudent:', localStorage.getItem('currentStudent'))
     
-    // localStorage와 state 모두 확인하여 더 안정적인 인증 체크
-    const isStudentLoggedIn = state.studentLoggedIn || localStorage.getItem('studentLoggedIn') === 'true'
-    const storedStudentData = localStorage.getItem('currentStudent')
-    const currentStudent = state.currentStudent || (storedStudentData ? JSON.parse(storedStudentData) : null)
+    // localStorage에서 학생 사용자 정보 확인
+    const studentUser = JSON.parse(localStorage.getItem('studentUser') || 'null')
+    console.log('💾 localStorage studentUser:', studentUser)
+    
+    const isStudentLoggedIn = state.studentLoggedIn || !!studentUser
+    const currentStudent = state.currentStudent || studentUser
     
     if (!isStudentLoggedIn || !currentStudent) {
       console.log('🚫 학생 인증 실패 - 로그인 페이지로 이동')
@@ -43,9 +43,9 @@ const StudentMain: React.FC = () => {
     } else {
       console.log('✅ 학생 인증 확인됨:', currentStudent.name)
       // localStorage에 로그인 상태가 있는데 state에 없으면 state 업데이트
-      if (!state.studentLoggedIn && localStorage.getItem('studentLoggedIn') === 'true' && currentStudent) {
-        console.log('🔄 localStorage에서 로그인 상태 복원 중...')
-        dispatch({ type: 'STUDENT_LOGIN', payload: currentStudent })
+      if (!state.studentLoggedIn && studentUser) {
+        console.log('🔄 localStorage에서 학생 로그인 상태 복원 중...')
+        dispatch({ type: 'STUDENT_LOGIN', payload: studentUser })
       }
     }
   }, [state.studentLoggedIn, state.currentStudent, navigate, dispatch])
@@ -56,7 +56,7 @@ const StudentMain: React.FC = () => {
   }
   
   // 현재 학생 정보 가져오기 (state 또는 localStorage에서)
-  const currentStudent = state.currentStudent || (localStorage.getItem('currentStudent') ? JSON.parse(localStorage.getItem('currentStudent')!) : null)
+  const currentStudent = state.currentStudent || JSON.parse(localStorage.getItem('studentUser') || 'null')
   
   // 현재 학생이 예약한 수업인지 확인 함수
   const isStudentBooked = (classItem: any) => {
