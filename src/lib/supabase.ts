@@ -14,15 +14,6 @@ console.log('🔗 Supabase 설정 확인:')
 console.log('📍 URL:', supabaseUrl)
 console.log('🔑 Key:', supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : '❌ Key가 설정되지 않음')
 
-// Supabase 연결 상태 확인
-let isSupabaseConnected = false
-try {
-  // 간단한 연결 테스트 (실제로는 첫 API 호출에서 확인됨)
-  console.log('🔄 Supabase 연결 테스트 시작...')
-} catch (error) {
-  console.error('❌ Supabase 연결 실패:', error)
-}
-
 // 환경 변수 상태 확인 (참고용)
 console.log('🔍 환경 변수 상태:')
 console.log('- VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL || '❌ 설정되지 않음')

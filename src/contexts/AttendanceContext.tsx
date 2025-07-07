@@ -3,7 +3,6 @@ import {
   studentService, 
   classService, 
   bookingService, 
-  adminService, 
   initializeData 
 } from '../services/database'
 import { supabase } from '../lib/supabase'
@@ -309,7 +308,7 @@ const mockAdmins = [
 // Supabase 연결 확인 함수
 const checkSupabaseConnection = async () => {
   try {
-    const { data, error } = await supabase.from('students').select('count').limit(1)
+    const { error } = await supabase.from('students').select('count').limit(1)
     return !error
   } catch (error) {
     console.warn('⚠️ Supabase 연결 실패, Mock 데이터 사용:', error)
@@ -640,7 +639,7 @@ export function AttendanceProvider({ children }: { children: ReactNode }) {
       
       if (isConnected) {
         // Supabase 사용
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('admins')
           .select('*')
           .eq('phone', phone)

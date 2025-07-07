@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAttendance } from '../../contexts/AttendanceContext'
 import { Lock, User, Eye, EyeOff } from 'lucide-react'
-import { testSupabaseConnection } from '../../lib/supabase'
+import { testConnection } from '../../lib/supabase'
 
 const AdminLogin: React.FC = () => {
   const [phone, setPhone] = useState('')
@@ -19,7 +19,7 @@ const AdminLogin: React.FC = () => {
   useEffect(() => {
     const checkConnection = async () => {
       console.log('🔍 관리자 로그인 - Supabase 연결 상태 확인 중...')
-      const isConnected = await testSupabaseConnection()
+      const isConnected = await testConnection()
       setSupabaseStatus(isConnected ? 'connected' : 'disconnected')
       
       if (!isConnected) {
