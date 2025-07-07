@@ -32,12 +32,6 @@ const AdminLogin: React.FC = () => {
   
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    // Supabase 연결 문제가 있으면 로그인 시도 중단
-    if (supabaseStatus === 'disconnected') {
-      setErrorMessage('❌ 데이터베이스 연결 문제로 로그인할 수 없습니다.')
-      return
-    }
 
     setIsLoading(true)
     setErrorMessage('')
@@ -74,28 +68,30 @@ const AdminLogin: React.FC = () => {
           <p className="text-gray-600">출석체크 관리자 시스템에 로그인하세요</p>
         </div>
         
-        {/* Supabase 연결 상태 표시 */}
-        <div className="mt-4 text-center">
-          {supabaseStatus === 'checking' && (
-            <div className="text-yellow-600 text-sm">
-              🔍 데이터베이스 연결 확인 중...
-            </div>
-          )}
-          {supabaseStatus === 'connected' && (
-            <div className="text-green-600 text-sm">
-              ✅ 데이터베이스 연결 정상
-            </div>
-          )}
-          {supabaseStatus === 'disconnected' && (
-            <div className="text-red-600 text-sm">
-              ❌ 데이터베이스 연결 실패
-              <br />
-              <span className="text-xs">
-                Supabase 프로젝트를 확인하거나 새로 생성해주세요
-              </span>
-            </div>
-          )}
-        </div>
+        {/* Supabase 연결 상태 표시 - Mock 데이터 사용 중이므로 숨김 */}
+        {false && (
+          <div className="mt-4 text-center">
+            {supabaseStatus === 'checking' && (
+              <div className="text-yellow-600 text-sm">
+                🔍 데이터베이스 연결 확인 중...
+              </div>
+            )}
+            {supabaseStatus === 'connected' && (
+              <div className="text-green-600 text-sm">
+                ✅ 데이터베이스 연결 정상
+              </div>
+            )}
+            {supabaseStatus === 'disconnected' && (
+              <div className="text-red-600 text-sm">
+                ❌ 데이터베이스 연결 실패
+                <br />
+                <span className="text-xs">
+                  Supabase 프로젝트를 확인하거나 새로 생성해주세요
+                </span>
+              </div>
+            )}
+          </div>
+        )}
         
         {/* 로그인 폼 */}
         <form onSubmit={handleLogin} className="space-y-4">
@@ -157,12 +153,12 @@ const AdminLogin: React.FC = () => {
             </div>
           )}
           
-          {/* 로그인 버튼 */}
+          {/* 로그인 버튼 - Supabase 연결 상태와 관계없이 항상 활성화 */}
           <button
             type="submit"
-            disabled={isLoading || supabaseStatus === 'disconnected'}
+            disabled={isLoading}
             className={`w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed ${
-              isLoading || supabaseStatus === 'disconnected'
+              isLoading 
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-primary-600 hover:bg-primary-700'
             }`}
