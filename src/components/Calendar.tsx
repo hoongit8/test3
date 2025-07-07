@@ -5,6 +5,7 @@ interface CalendarProps {
   selectedDate: string
   onDateSelect: (date: string) => void
   onCreateClass?: (date: string) => void
+  onDeleteClass?: (classId: string, classTitle: string) => void
   classes: Array<{
     id: string
     title: string
@@ -20,6 +21,7 @@ const Calendar: React.FC<CalendarProps> = ({
   selectedDate,
   onDateSelect,
   onCreateClass,
+  onDeleteClass,
   classes,
   isAdmin = false
 }) => {
@@ -88,9 +90,21 @@ const Calendar: React.FC<CalendarProps> = ({
       const dateStr = formatDate(date)
       onDateSelect(dateStr)
       
-      // 관리자인 경우 수업 생성 모달도 함께 열기
-      if (isAdmin && onCreateClass) {
-        onCreateClass(dateStr)
+      if (isAdmin) {
+        const dayClasses = getClassesForDate(date)
+        
+        if (dayClasses.length > 0) {
+          // 수업이 있는 날짜 클릭 시 삭제 확인
+          const classToDelete = dayClasses[0] // 첫 번째 수업 선택
+          if (onDeleteClass && window.confirm(`"${classToDelete.title}" 수업을 삭제하시겠습니까?`)) {
+            onDeleteClass(classToDelete.id, classToDelete.title)
+          }
+        } else {
+          // 수업이 없는 날짜 클릭 시 새 수업 생성
+          if (onCreateClass) {
+            onCreateClass(dateStr)
+          }
+        }
       }
     }
   }
@@ -142,7 +156,14 @@ const Calendar: React.FC<CalendarProps> = ({
                 ${isCurrentMonthDate ? (isAdmin ? 'hover:bg-green-50' : 'hover:bg-gray-50') : 'text-gray-300'}
                 ${isSelected(date) ? 'bg-primary-50' : ''}
               `}
-              title={isAdmin && isCurrentMonthDate ? '클릭하여 수업 생성' : undefined}
+              title={
+                isAdmin && isCurrentMonthDate 
+                  ? (dayClasses.length > 0 
+                      ? `클릭하여 "${dayClasses[0]?.title}" 수업 삭제` 
+                      : '클릭하여 수업 생성'
+                    )
+                  : undefined
+              }
             >
               {/* 날짜 */}
               <div className={`

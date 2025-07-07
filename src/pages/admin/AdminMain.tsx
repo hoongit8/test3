@@ -293,6 +293,7 @@ const AdminMain: React.FC = () => {
           selectedDate={state.selectedDate}
           onDateSelect={handleDateSelect}
           onCreateClass={handleCreateClass}
+          onDeleteClass={handleDeleteClass}
           classes={state.classes.map(cls => ({
             id: cls.id,
             title: cls.title,
