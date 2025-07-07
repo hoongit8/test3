@@ -53,6 +53,13 @@ const AdminMain: React.FC = () => {
     description: ''
   })
   
+  // 시간 선택을 위한 별도 상태 추가
+  const [timeSelection, setTimeSelection] = useState({
+    hour: '',
+    minute: '',
+    period: 'AM'
+  })
+  
   // 수업에 예약된 학생 수 계산 함수
   const getBookedStudentsCount = (classItem: any) => {
     return classItem.class_bookings ? classItem.class_bookings.length : 0
@@ -106,12 +113,25 @@ const AdminMain: React.FC = () => {
   
   // 수업 수정 모달 열기
   const handleEditClass = (classItem: any) => {
+    // 기존 시간을 파싱하여 시간 선택 상태로 변환
+    const [hour, minute] = classItem.time.split(':')
+    const hourInt = parseInt(hour)
+    const period = hourInt >= 12 ? 'PM' : 'AM'
+    const displayHour = hourInt === 0 ? 12 : hourInt > 12 ? hourInt - 12 : hourInt
+    
     setNewClass({
       title: classItem.title,
       time: classItem.time,
       maxStudents: classItem.max_students,
       description: classItem.description || ''
     })
+    
+    setTimeSelection({
+      hour: displayHour.toString(),
+      minute: minute,
+      period: period
+    })
+    
     dispatch({ 
       type: 'OPEN_MODAL', 
       payload: { type: 'editClass', class: classItem } 
@@ -175,6 +195,11 @@ const AdminMain: React.FC = () => {
         maxStudents: 5,
         description: ''
       })
+      setTimeSelection({
+        hour: '',
+        minute: '',
+        period: 'AM'
+      })
       dispatch({ type: 'CLOSE_MODAL' })
       
       console.log('🎉 수업 저장 완료')
@@ -193,7 +218,31 @@ const AdminMain: React.FC = () => {
       maxStudents: 5,
       description: ''
     })
+    setTimeSelection({
+      hour: '',
+      minute: '',
+      period: 'AM'
+    })
     dispatch({ type: 'CLOSE_MODAL' })
+  }
+  
+  // 시간 선택 변경 핸들러
+  const handleTimeChange = (field: 'hour' | 'minute' | 'period', value: string) => {
+    const newTimeSelection = { ...timeSelection, [field]: value }
+    setTimeSelection(newTimeSelection)
+    
+    // 시간과 분이 모두 선택되었을 때 time 필드 업데이트
+    if (newTimeSelection.hour && newTimeSelection.minute) {
+      let hour24 = parseInt(newTimeSelection.hour)
+      if (newTimeSelection.period === 'PM' && hour24 !== 12) {
+        hour24 += 12
+      } else if (newTimeSelection.period === 'AM' && hour24 === 12) {
+        hour24 = 0
+      }
+      
+      const timeString = `${hour24.toString().padStart(2, '0')}:${newTimeSelection.minute}`
+      setNewClass({ ...newClass, time: timeString })
+    }
   }
   
   // 날짜 포맷팅 함수
@@ -355,44 +404,72 @@ const AdminMain: React.FC = () => {
             />
           </div>
           
-          {/* 수업 시간 */}
+          {/* 수업 시간 - 개선된 시간 선택기 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               수업 시간
             </label>
-            <select
-              value={newClass.time}
-              onChange={(e) => setNewClass({...newClass, time: e.target.value})}
-              className="input-field"
-            >
-              <option value="">시간을 선택하세요</option>
-              <option value="09:00">오전 09:00</option>
-              <option value="09:30">오전 09:30</option>
-              <option value="10:00">오전 10:00</option>
-              <option value="10:30">오전 10:30</option>
-              <option value="11:00">오전 11:00</option>
-              <option value="11:30">오전 11:30</option>
-              <option value="12:00">오후 12:00</option>
-              <option value="12:30">오후 12:30</option>
-              <option value="13:00">오후 01:00</option>
-              <option value="13:30">오후 01:30</option>
-              <option value="14:00">오후 02:00</option>
-              <option value="14:30">오후 02:30</option>
-              <option value="15:00">오후 03:00</option>
-              <option value="15:30">오후 03:30</option>
-              <option value="16:00">오후 04:00</option>
-              <option value="16:30">오후 04:30</option>
-              <option value="17:00">오후 05:00</option>
-              <option value="17:30">오후 05:30</option>
-              <option value="18:00">오후 06:00</option>
-              <option value="18:30">오후 06:30</option>
-              <option value="19:00">오후 07:00</option>
-              <option value="19:30">오후 07:30</option>
-              <option value="20:00">오후 08:00</option>
-              <option value="20:30">오후 08:30</option>
-              <option value="21:00">오후 09:00</option>
-              <option value="21:30">오후 09:30</option>
-            </select>
+            <div className="grid grid-cols-3 gap-3">
+              {/* 시간 선택 */}
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">시</label>
+                <select
+                  value={timeSelection.hour}
+                  onChange={(e) => handleTimeChange('hour', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="">선택</option>
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map(hour => (
+                    <option key={hour} value={hour.toString()}>
+                      {hour}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* 분 선택 */}
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">분</label>
+                <select
+                  value={timeSelection.minute}
+                  onChange={(e) => handleTimeChange('minute', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="">선택</option>
+                  <option value="00">00</option>
+                  <option value="15">15</option>
+                  <option value="30">30</option>
+                  <option value="45">45</option>
+                </select>
+              </div>
+              
+              {/* 오전/오후 선택 */}
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">오전/오후</label>
+                <select
+                  value={timeSelection.period}
+                  onChange={(e) => handleTimeChange('period', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="AM">오전</option>
+                  <option value="PM">오후</option>
+                </select>
+              </div>
+            </div>
+            
+            {/* 선택된 시간 미리보기 */}
+            {newClass.time && (
+              <div className="mt-2 p-2 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-700">
+                  선택된 시간: <span className="font-medium">{newClass.time}</span>
+                  {timeSelection.hour && timeSelection.minute && (
+                    <span className="ml-2">
+                      ({timeSelection.period === 'AM' ? '오전' : '오후'} {timeSelection.hour}:{timeSelection.minute})
+                    </span>
+                  )}
+                </p>
+              </div>
+            )}
           </div>
           
           {/* 최대 학생 수 */}
