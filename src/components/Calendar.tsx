@@ -76,10 +76,18 @@ const Calendar: React.FC<CalendarProps> = ({
     return date.getMonth() === currentDate.getMonth()
   }
   
-  // 해당 날짜의 수업 개수 계산
+  // 해당 날짜의 수업들과 총 학생 수 계산
   const getClassesForDate = (date: Date) => {
     const dateStr = formatDate(date)
-    return classes.filter(cls => cls.date === dateStr)
+    const dayClasses = classes.filter(cls => cls.date === dateStr)
+    const totalStudents = dayClasses.reduce((sum, cls) => sum + cls.currentStudents, 0)
+    return { classes: dayClasses, totalStudents }
+  }
+  
+  // 수업이 있는 날짜인지 확인
+  const hasClasses = (date: Date) => {
+    const { classes: dayClasses } = getClassesForDate(date)
+    return dayClasses.length > 0
   }
   
   // 날짜 클릭 핸들러
@@ -130,17 +138,19 @@ const Calendar: React.FC<CalendarProps> = ({
       {/* 날짜 그리드 */}
       <div className="grid grid-cols-7">
         {days.map((date, index) => {
-          const dayClasses = getClassesForDate(date)
+          const { classes: dayClasses, totalStudents } = getClassesForDate(date)
           const isCurrentMonthDate = isCurrentMonth(date)
+          const hasClassesToday = hasClasses(date)
           
           return (
             <div
               key={index}
               onClick={() => handleDateClick(date)}
               className={`
-                relative p-2 min-h-[60px] border-b border-r cursor-pointer
+                relative p-2 min-h-[60px] border-b border-r cursor-pointer transition-colors
                 ${isCurrentMonthDate ? (isAdmin ? 'hover:bg-green-50' : 'hover:bg-gray-50') : 'text-gray-300'}
                 ${isSelected(date) ? 'bg-primary-50' : ''}
+                ${isAdmin && hasClassesToday && isCurrentMonthDate ? 'bg-blue-100' : ''}
               `}
               title={isAdmin && isCurrentMonthDate ? '클릭하여 수업 생성' : undefined}
             >
@@ -149,6 +159,7 @@ const Calendar: React.FC<CalendarProps> = ({
                 inline-flex items-center justify-center w-6 h-6 text-sm font-medium rounded-full
                 ${isToday(date) ? 'bg-primary-600 text-white' : ''}
                 ${isSelected(date) && !isToday(date) ? 'bg-primary-100 text-primary-800' : ''}
+                ${isAdmin && hasClassesToday && isCurrentMonthDate && !isToday(date) ? 'bg-blue-500 text-white' : ''}
               `}>
                 {date.getDate()}
               </div>
@@ -156,23 +167,49 @@ const Calendar: React.FC<CalendarProps> = ({
               {/* 수업 표시 */}
               {isCurrentMonthDate && (
                 <div className="mt-1 space-y-1">
-                  {dayClasses.slice(0, 2).map(cls => (
-                    <div
-                      key={cls.id}
-                      className="text-xs bg-primary-100 text-primary-800 px-1 py-0.5 rounded truncate"
-                    >
-                      {cls.title}
-                    </div>
-                  ))}
-                  {dayClasses.length > 2 && (
-                    <div className="text-xs text-gray-500">
-                      +{dayClasses.length - 2}개
-                    </div>
+                  {isAdmin ? (
+                    // 관리자 모드: 수업 제목과 학생 수 표시
+                    <>
+                      {dayClasses.slice(0, 2).map(cls => (
+                        <div
+                          key={cls.id}
+                          className="text-xs bg-white/80 text-blue-800 px-1 py-0.5 rounded truncate border border-blue-200"
+                        >
+                          {cls.title}
+                        </div>
+                      ))}
+                      {dayClasses.length > 2 && (
+                        <div className="text-xs text-blue-600 font-medium">
+                          +{dayClasses.length - 2}개
+                        </div>
+                      )}
+                      {/* 총 학생 수 표시 */}
+                      {totalStudents > 0 && (
+                        <div className="text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded-full text-center font-medium">
+                          {totalStudents}명
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    // 학생 모드: 기존 방식
+                    <>
+                      {dayClasses.slice(0, 2).map(cls => (
+                        <div
+                          key={cls.id}
+                          className="text-xs bg-primary-100 text-primary-800 px-1 py-0.5 rounded truncate"
+                        >
+                          {cls.title}
+                        </div>
+                      ))}
+                      {dayClasses.length > 2 && (
+                        <div className="text-xs text-gray-500">
+                          +{dayClasses.length - 2}개
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
-              
-
             </div>
           )
         })}
