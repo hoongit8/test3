@@ -54,11 +54,11 @@ const StudentLogin: React.FC = () => {
         <div className="text-center mb-6">
           <div className="mx-auto mb-6">
             {/* 로고 이미지 */}
-            <div className="mx-auto w-32 h-32 mb-4 flex items-center justify-center">
+            <div className="mx-auto w-64 h-64 mb-4 flex items-center justify-center">
               <img 
                 src="/images/logo.png" 
                 alt="출석체크 시스템 로고" 
-                className="w-32 h-32 object-contain"
+                className="w-64 h-64 object-contain"
                 onError={(e) => {
                   // 이미지 로드 실패 시 기본 아이콘으로 대체
                   const target = e.currentTarget;
@@ -72,11 +72,11 @@ const StudentLogin: React.FC = () => {
               />
               {/* 대체 아이콘 (이미지 로드 실패 시 표시) */}
               <div 
-                className="w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg"
+                className="w-64 h-64 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg"
                 style={{ display: 'none' }}
               >
-                <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center">
-                  <UserCheck className="w-12 h-12 text-green-600" />
+                <div className="w-48 h-48 bg-white rounded-full flex items-center justify-center">
+                  <UserCheck className="w-24 h-24 text-green-600" />
                 </div>
               </div>
             </div>
