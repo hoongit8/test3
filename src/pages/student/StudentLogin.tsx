@@ -49,44 +49,47 @@ const StudentLogin: React.FC = () => {
   
   return (
     <div className="mobile-container">
-      <div className="flex flex-col justify-center min-h-screen p-6">
-        {/* 메인 이미지 */}
-        <div className="text-center mb-6">
-          <div className="mx-auto mb-6">
-            {/* 로고 이미지 */}
-            <div className="mx-auto w-64 h-64 mb-4 flex items-center justify-center">
-              <img 
-                src="/images/logo.png" 
-                alt="출석체크 시스템 로고" 
-                className="w-64 h-64 object-contain"
-                onError={(e) => {
-                  // 이미지 로드 실패 시 기본 아이콘으로 대체
-                  const target = e.currentTarget;
-                  target.style.display = 'none';
-                  // 대체 아이콘 표시
-                  const fallback = target.nextElementSibling as HTMLElement;
-                  if (fallback) {
-                    fallback.style.display = 'flex';
-                  }
-                }}
-              />
-              {/* 대체 아이콘 (이미지 로드 실패 시 표시) */}
-              <div 
-                className="w-64 h-64 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg"
-                style={{ display: 'none' }}
-              >
-                <div className="w-48 h-48 bg-white rounded-full flex items-center justify-center">
-                  <UserCheck className="w-24 h-24 text-green-600" />
+      {/* 그라데이션 배경 */}
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+        <div className="flex flex-col justify-center min-h-screen p-6">
+          {/* 메인 이미지 */}
+          <div className="text-center mb-6">
+            <div className="mx-auto mb-6">
+              {/* 로고 이미지 */}
+              <div className="mx-auto w-64 h-64 mb-4 flex items-center justify-center">
+                <img 
+                  src="/images/logo.png" 
+                  alt="출석체크 시스템 로고" 
+                  className="w-64 h-64 object-contain drop-shadow-lg"
+                  onError={(e) => {
+                    // 이미지 로드 실패 시 기본 아이콘으로 대체
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    // 대체 아이콘 표시
+                    const fallback = target.nextElementSibling as HTMLElement;
+                    if (fallback) {
+                      fallback.style.display = 'flex';
+                    }
+                  }}
+                />
+                {/* 대체 아이콘 (이미지 로드 실패 시 표시) */}
+                <div 
+                  className="w-64 h-64 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-xl"
+                  style={{ display: 'none' }}
+                >
+                  <div className="w-48 h-48 bg-white rounded-full flex items-center justify-center">
+                    <UserCheck className="w-24 h-24 text-green-600" />
+                  </div>
                 </div>
               </div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2 drop-shadow-sm">출석체크 시스템</h1>
+              <p className="text-gray-600">학생 로그인</p>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">출석체크 시스템</h1>
-            <p className="text-gray-600">학생 로그인</p>
           </div>
-        </div>
-        
-        {/* 로그인 폼 */}
-        <form onSubmit={handleLogin} className="space-y-4">
+          
+          {/* 로그인 폼 - 카드 스타일 */}
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mx-auto w-full max-w-md border border-white/20">
+            <form onSubmit={handleLogin} className="space-y-4">
           {/* 전화번호 입력 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -192,6 +195,8 @@ const StudentLogin: React.FC = () => {
               관리자 로그인
             </button>
           </p>
+        </div>
+          </div>
         </div>
       </div>
     </div>
