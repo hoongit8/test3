@@ -49,8 +49,13 @@ const StudentLogin: React.FC = () => {
   
   return (
     <div className="mobile-container">
-      {/* 그라데이션 배경 */}
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+      {/* #005444 기반 그라데이션 배경 */}
+      <div 
+        className="min-h-screen"
+        style={{
+          background: 'linear-gradient(135deg, #005444 0%, #007A5E 25%, #009688 50%, #4DB6AC 75%, #B2DFDB 100%)'
+        }}
+      >
         <div className="flex flex-col justify-center min-h-screen p-6">
           {/* 메인 이미지 */}
           <div className="text-center mb-6">
@@ -60,7 +65,7 @@ const StudentLogin: React.FC = () => {
                 <img 
                   src="/images/logo.png" 
                   alt="출석체크 시스템 로고" 
-                  className="w-64 h-64 object-contain drop-shadow-lg"
+                  className="w-64 h-64 object-contain drop-shadow-2xl"
                   onError={(e) => {
                     // 이미지 로드 실패 시 기본 아이콘으로 대체
                     const target = e.currentTarget;
@@ -74,21 +79,24 @@ const StudentLogin: React.FC = () => {
                 />
                 {/* 대체 아이콘 (이미지 로드 실패 시 표시) */}
                 <div 
-                  className="w-64 h-64 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-xl"
-                  style={{ display: 'none' }}
+                  className="w-64 h-64 rounded-full flex items-center justify-center shadow-2xl"
+                  style={{ 
+                    display: 'none',
+                    background: 'linear-gradient(135deg, #005444 0%, #007A5E 50%, #009688 100%)'
+                  }}
                 >
                   <div className="w-48 h-48 bg-white rounded-full flex items-center justify-center">
-                    <UserCheck className="w-24 h-24 text-green-600" />
+                    <UserCheck className="w-24 h-24" style={{ color: '#005444' }} />
                   </div>
                 </div>
               </div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2 drop-shadow-sm">출석체크 시스템</h1>
-              <p className="text-gray-600">학생 로그인</p>
+              <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">출석체크 시스템</h1>
+              <p className="text-green-100">학생 로그인</p>
             </div>
           </div>
           
           {/* 로그인 폼 - 카드 스타일 */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mx-auto w-full max-w-md border border-white/20">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 mx-auto w-full max-w-md border border-white/30">
             <form onSubmit={handleLogin} className="space-y-4">
           {/* 전화번호 입력 */}
           <div>
